@@ -1,21 +1,28 @@
 
 import requests
 import json
-import os
 from concurrent.futures import ThreadPoolExecutor
 
 BASE = "https://live2.jorvakstreamcache.com/live/"
 
+# মোট ৩০টি M3U8 চ্যানেল
 channels = [
-    BASE + f"channel{i}.m3u8"
-    for i in range(1, 20)
+    {
+        "name": f"server {i}",
+        "url": f"{BASE}channel{i}.m3u8"
+    }
+    for i in range(1, 31)
 ]
 
 headers = {
     "User-Agent": "Mozilla/5.0"
 }
 
-def check(url):
+
+def check(channel):
+
+    url = channel["url"]
+
     try:
         r = requests.get(
             url,
@@ -32,47 +39,60 @@ def check(url):
             return None
 
         lines = [
-            x.strip() for x in text.splitlines()
-            if x.strip() and not x.startswith("#")
+            x.strip()
+            for x in text.splitlines()
+            if x.strip()
         ]
-
-        if not lines:
-            return None
 
         media_url = url
 
-        # Master playlist
+        # Master Playlist পরীক্ষা
         if "#EXT-X-STREAM-INF" in text:
-            for i, line in enumerate(text.splitlines()):
+
+            variant = None
+
+            for i, line in enumerate(lines):
+
                 if line.startswith("#EXT-X-STREAM-INF"):
+
                     variant = next(
-                        (x.strip() for x in text.splitlines()[i+1:]
-                         if x.strip() and not x.startswith("#")),
+                        (
+                            x for x in lines[i + 1:]
+                            if not x.startswith("#")
+                        ),
                         None
                     )
-                    if not variant:
-                        return None
-
-                    media_url = requests.compat.urljoin(url, variant)
-                    r = requests.get(
-                        media_url,
-                        headers=headers,
-                        timeout=12
-                    )
-
-                    if r.status_code != 200:
-                        return None
-
-                    text = r.text
-
-                    if not text.strip().startswith("#EXTM3U"):
-                        return None
 
                     break
 
+            if not variant:
+                return None
+
+            media_url = requests.compat.urljoin(
+                url, variant
+            )
+
+            r = requests.get(
+                media_url,
+                headers=headers,
+                timeout=12
+            )
+
+            if r.status_code != 200:
+                return None
+
+            text = r.text
+
+            if not text.strip().startswith("#EXTM3U"):
+                return None
+
+        # Media Segment খোঁজা
         segment = next(
-            (x.strip() for x in text.splitlines()
-             if x.strip() and not x.startswith("#")),
+            (
+                x.strip()
+                for x in text.splitlines()
+                if x.strip() and not x.strip().startswith("#")
+            ),
             None
         )
 
@@ -83,6 +103,7 @@ def check(url):
             media_url, segment
         )
 
+        # Segment পরীক্ষা
         test = requests.get(
             segment_url,
             headers=headers,
@@ -91,10 +112,14 @@ def check(url):
         )
 
         try:
+
             if test.status_code not in (200, 206):
                 return None
 
-            first_bytes = next(test.iter_content(2), b"")
+            first_bytes = next(
+                test.iter_content(2),
+                b""
+            )
 
             if not first_bytes:
                 return None
@@ -102,28 +127,47 @@ def check(url):
         finally:
             test.close()
 
-        return url
+        print("LIVE:", channel["name"])
 
-    except requests.RequestException:
+        return channel
+
+    except requests.RequestException as e:
+
+        print("ERROR:", channel["name"], str(e))
+
         return None
 
 
+# ৫টি Worker দিয়ে স্ক্যান
 with ThreadPoolExecutor(max_workers=5) as executor:
-    results = list(executor.map(check, channels))
 
-live_links = [
-    {"index": i, "url": url}
-    for i, url in enumerate(
-        [x for x in results if x],
-        start=1
+    results = list(
+        executor.map(check, channels)
     )
+
+
+# শুধু LIVE চ্যানেল
+live_links = [
+    result
+    for result in results
+    if result is not None
 ]
 
-data = {
-    "live": live_links
-}
 
+# API-compatible JSON Array
 with open("live.json", "w", encoding="utf-8") as f:
-    json.dump(data, f, indent=2, ensure_ascii=False)
 
-print("LIVE LINKS:", len(live_links))
+    json.dump(
+        live_links,
+        f,
+        indent=4,
+        ensure_ascii=False
+    )
+
+
+print("--------------------------------")
+print("TOTAL CHANNELS:", len(channels))
+print("LIVE CHANNELS:", len(live_links))
+print("OFFLINE CHANNELS:", len(channels) - len(live_links))
+print("JSON UPDATED: live.json")
+print("--------------------------------")
