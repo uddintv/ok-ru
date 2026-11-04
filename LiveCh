@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <meta name="referrer" content="no-referrer">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  
+  <title>VIETNAMESE xoilaczcl DOT tv all live btn ...M3U8 Player</title>
+  
+<!-- USE ?server=2 IF NEED SHOW ONLE VIDEO 2  -->
+  
+  
+  
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{width:100%;height:100%;background:#0a0a0a;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#fff;overflow:hidden}
+    ::-webkit-scrollbar{width:4px;height:4px}
+    ::-webkit-scrollbar-track{background:#0a0a0a}
+    ::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#ef4444,#f97316);border-radius:4px}
+
+    #app-container{display:flex;flex-direction:column;width:100%;height:100vh;overflow:hidden}
+
+    /* Player Section Full 100% Height & Width */
+    #player-section{width:100%;flex:1;background:#000;position:relative;overflow:hidden}
+    #player-wrapper{width:100%;height:100%;position:relative;display:flex;background:#000}
+    
+    #videoContainer{position:absolute;inset:0;width:100%;height:100%;background:#000}
+    #player-wrapper video{width:100%;height:100%;object-fit:contain;background:#000}
+
+    /* Server Switcher Buttons inside Player with Proper Z-Index */
+    #server-buttons{
+      position:absolute;
+      bottom:0;
+      left:0;
+      width:100%;
+      z-index:50;
+      display:flex;
+      gap:6px;
+      padding:10px;
+      background:rgba(0,0,0,0.6);
+      backdrop-filter:blur(4px);
+      overflow-x:auto;
+      white-space:nowrap;
+    }
+
+    .server-btn, .ch-btn{background:rgba(0,0,0,0.8);border:1px solid rgba(255,255,255,0.2);color:#ccc;padding:6px 12px;font-size:11px;font-weight:600;border-radius:6px;cursor:pointer;transition:all 0.2s;flex-shrink:0}
+    .server-btn:hover, .ch-btn:hover{background:rgba(255,255,255,0.2);color:#fff}
+    .server-btn.active-server, .ch-btn.active-server{
+      background: lime;
+      color:#000;
+      border-color:transparent
+    }
+
+    .refresh-btn{position:absolute;top:12px;right:12px;z-index:50;background:rgba(0,0,0,0.6);border:none;cursor:pointer;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+    .refresh-icon{width:20px;height:20px;fill:yellow;transition:transform 0.3s linear}
+    .refresh-btn.spin .refresh-icon{animation:spin 0.6s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    #playBtn, #pauseBtn {
+      position: absolute;
+      bottom: 8px;
+      left: 14px;
+      font-size: 17px;
+      color: #fff;
+      background: rgba(0,0,0,0.0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 20;
+    }
+
+    #pauseBtn {
+      display: none;
+      opacity: 0.3;
+      transition: opacity 0.3s;
+    }
+
+    #player-wrapper.mouse-active #pauseBtn {
+      opacity: 1 !important;
+    }
+
+    /* ভিডিও লোডিং ও বাফারিং লোডার */
+    #loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 90%;
+      text-align: center;
+      color: #888;
+      background: transparent;
+      z-index: 99999;
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    #loading.active {
+      display: flex;
+    }
+
+    #loading .loader-spinner {
+      width: 40px;
+      height: 40px;
+      border: 2px solid #1e293b;
+      border-bottom: 2px solid #38bdf8;
+      border-radius: 50%;
+      animation: loaderSpin 0.8s linear infinite;
+    }
+
+    @keyframes loaderSpin {
+      to { transform: rotate(360deg); }
+    }
+
+    #loading .loader-message {
+      color: #fff;
+      font-size: 13px;
+      text-align: center;
+      font-weight: 700;
+      padding: 0 10px;
+    }
+
+    #loading.upcoming-mode .loader-message {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #loading .up-line1 {
+      font-size: 18px;
+      font-weight: 800;
+      color: #38bdf8;
+      background: rgba(0, 0, 0, 0.65);
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    #loading .up-line2 {
+      font-size: 13px;
+      font-weight: 600;
+      color: #ff3333;
+      background: rgba(0, 0, 0, 0.65);
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    #centerPlayBtn{
+      position:absolute;
+      top:50%;
+      left:50%;
+      transform:translate(-50%,-50%);
+      width: 40%;
+      height: 40%;
+      color:#38bdf8;
+      font-size:42px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      cursor:pointer;
+      z-index:100;
+      transition:.3s;
+    }
+
+    #centerPlayBtn:hover{
+      transform:translate(-50%,-50%) scale(1.1);
+    }
+      
+ #seekBarIframe{
+    position:absolute;
+    left:0px;
+    right:0px;
+    bottom:40px;
+    height:1px;
+    background:#444;
+    border-radius:10px;
+    overflow:visible;
+    opacity: 0.1;
+    transition: opacity 0.3s;
+      z-index:100;
+    }
+        
+ #player-wrapper.mouse-active #seekBarIframe {
+      opacity: 1 !important;
+    }
+
+ #seekProgressIframe{
+    position:relative;
+    width:100%;
+    height:100%;
+    background:#ff0000;
+    border-radius:10px;
+    }
+
+#seekThumbIframe{
+    position:absolute;
+    right: -5px;
+    top:50%;
+    transform:translateY(-50%);
+    width:14px;
+    height:14px;
+    background:#fff;
+    border-radius:50%;
+    box-shadow:0 0 6px rgba(0,0,0,.5);
+    }
+  
+#textLiveIframe {
+    position: absolute;
+    bottom: 12px;
+    left: 57px;
+    font-size: 12px;
+    color: #fff;
+    background: rgba(0,0,0,0.0);
+    border-radius: 0%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    opacity: 0.1;
+    transition: opacity 0.3s;
+    }
+
+#player-wrapper.mouse-active #textLiveIframe {
+      opacity: 1 !important;
+    }
+  
+.volume-container {
+  position: absolute;
+  bottom: 3px;
+  right: 12%;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+  opacity: 0.1;
+  transition: opacity 0.3s;
+  pointer-events: auto;
+    }
+
+    #player-wrapper.mouse-active .volume-container {
+      opacity: 1 !important;
+    }
+        
+.volume-icon {
+      z-index: 5000000;
+      width: 28px;
+      height: 28px;
+    }
+
+#volumeSlider {
+    position: absolute;
+    bottom: 58px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-90deg);
+    width: 70px;
+    height: 5px;
+    margin-left: -5px;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    cursor: pointer;
+    transition: opacity .25s, visibility .25s;
+    }      
+
+.volume-container:hover #volumeSlider {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+    
+    
+    
+  </style>
+</head>
+<body>
+
+<div id="app-container">
+  <div id="player-section">
+    <div id="player-wrapper">
+       
+       <div id="seekBarIframe">  
+        <div id="seekProgressIframe">
+            <div id="seekThumbIframe"></div>
+        </div>
+      </div>  
+      <div id="textLiveIframe"> 🔴 LIVE</div>    
+          
+      <!-- VOLUME ICON WITH SLIDER -->
+      <div class="volume-container" id="volumeContainer">
+          <span id="volumeIcon" class="volume-icon">
+              <svg style="width:24px;height:24px;" viewBox="0 0 24 24"><path fill="#38bdf8" stroke="#fff" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+          </span>
+          <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1">
+      </div>      
+    
+      <div id="playBtn">
+          <svg viewBox="0 0 24 24" style="width: 22px; height: 22px; fill: currentColor;"><path d="M8 5v14l11-7z"></path></svg>
+      </div>  
+      <div id="pauseBtn">
+          <svg viewBox="0 0 24 24" style="width: 22px; height: 22px; fill: currentColor;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>
+      </div>  
+
+      <!-- লোডার যেখানে ক্লিক করলে বর্তমান স্ট্রিম রিফ্রেশ হবে -->
+      <div id="loading" onclick="reloadCurrentStream()">
+          <div class="loader-spinner"></div>
+          <div class="loader-message">Video Loading...</div>
+      </div>
+          
+      <div id="videoContainer">
+        <video id="player" autoplay playsinline preload="metadata"></video>
+      </div>
+      
+      <div id="centerPlayBtn" style="display:none;">
+          <svg width="100%" height="100%" viewBox="0 0 24 24" fill="#38bdf8">
+              <path d="M8 5v14l11-7z"/>
+          </svg>
+      </div>      
+          
+      <div id="server-buttons"></div>
+
+      <button class="refresh-btn" id="refreshBtn">
+        <svg class="refresh-icon" viewBox="0 0 24 24">
+            <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"></path>
+        </svg>  
+      </button>
+    </div>
+  </div>
+</div>
+ 
+<!-- Only HLS.js Script -->
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
+
+<script>
+(function(){"use strict";
+
+var API_URLS = [
+  "https://raw.githubusercontent.com/uddintv/ok/refs/heads/main/live.json"
+];
+
+var DIRECT_CHANNELS = [];
+
+var video         = document.getElementById("player");
+var loading       = document.getElementById("loading");
+var $serverButtons= document.getElementById("server-buttons");
+var refreshBtn    = document.getElementById("refreshBtn");
+var volumeSlider  = document.getElementById("volumeSlider");
+var volumeIcon    = document.getElementById("volumeIcon");
+
+var currentSources = [];
+var activeServerIdx = 0;
+var currentChannel = 0;
+var hlsInstance = null;
+var streamFailed = false;
+var lastVolume = 1;
+
+function showLoader(msg = "Video Loading...", showSpinner = true, isOffline = false) {
+    const spinner = loading.querySelector(".loader-spinner");
+    const message = loading.querySelector(".loader-message");
+
+    spinner.style.display = showSpinner ? "block" : "none";
+    loading.classList.remove("active", "upcoming-mode");
+
+    if (isOffline) {
+        message.innerHTML = '<span class="up-line1">Load Again  ⟳ </span>' +
+                            '<span class="up-line2">Network Error Click ⟳ Refresh</span>';
+        loading.classList.add("upcoming-mode");
+    } else {
+        message.textContent = msg;
+    }
+    loading.classList.add("active");
+}
+
+function hideLoading() {
+    loading.classList.remove("active", "upcoming-mode");
+}
+
+function setActive(btn) {
+    document.querySelectorAll('.server-btn, .ch-btn').forEach(b => b.classList.remove('active-server'));
+    if (btn) btn.classList.add('active-server');
+}
+
+function extractStreams(match, defaultTitle) {
+  var found = [];
+  var seen = new Set();
+
+  function addSource(value, title) {
+    if (!value) return;
+    if (typeof value === 'string') {
+      value = value.trim();
+      if (!/^https?:\/\//i.test(value) || seen.has(value)) return;
+      seen.add(value);
+      if (/\.m3u8(?:$|\?)/i.test(value)) {
+        found.push({ title: title || defaultTitle, url: value });
+      }
+      return;
+    }
+    if (typeof value === 'object') {
+      if (Array.isArray(value)) {
+        value.forEach(function(item, index) { addSource(item, (title || defaultTitle) + ' ' + (index + 1)); });
+        return;
+      }
+      var directUrl = value.url || value.streamUrl || value.stream_url || value.src || value.link || value.file || value.playbackUrl || value.playback_url;
+      if (directUrl) {
+        addSource(directUrl, value.title || value.name || title || defaultTitle);
+        return;
+      }
+      Object.keys(value).forEach(function(k) { addSource(value[k], (title || defaultTitle) + ' ' + k); });
+    }
+  }
+
+  if (match.url && typeof match.url === 'string') {
+    addSource(match.url, match.title || defaultTitle);
+  }
+
+  addSource(match.stream_url_alpha, 'ALPHA');
+  addSource(match.stream_url_bravo, 'BRAVO');
+  addSource(match.url, match.title || defaultTitle);
+
+  [['streams', 'STREAM'], ['sources', 'SOURCE'], ['servers', 'SERVER'], ['server_urls', 'SERVER'], ['hlsStreams', 'HLS']].forEach(function(entry) {
+    addSource(match[entry[0]], match.title || entry[1]);
+  });
+
+  return found;
+}
+
+async function loadData() {
+  var allExtractedStreams = [];
+
+  DIRECT_CHANNELS.forEach(function(ch) {
+    if (/\.m3u8(?:$|\?)/i.test(ch.url)) {
+      allExtractedStreams.push({
+        title: ch.title,
+        url: ch.url
+      });
+    }
+  });
+
+  await Promise.all(API_URLS.map(async function(apiUrl) {
+    try {
+      var r = await fetch(apiUrl, {
+        cache: "no-store",
+        headers: { Accept: "application/json" }
+      });
+      if (!r.ok) return;
+      var data = await r.json();
+      var list = Array.isArray(data) ? data : (Array.isArray(data.Matches) ? data.Matches : Array.isArray(data.matches) ? data.matches : Array.isArray(data.data) ? data.data : []);
+      
+      if (Array.isArray(list)) {
+        list.forEach(function(match, idx) {
+          var matchTitle = match.title || (match.event && match.event.name) || ('Match ' + (idx + 1));
+          var streams = extractStreams(match, matchTitle);
+          allExtractedStreams = allExtractedStreams.concat(streams);
+        });
+      }
+    } catch (err) {
+      console.error("API Error:", apiUrl, err);
+    }
+  }));
+
+  return allExtractedStreams;
+}
+
+async function init() {
+  try {
+    currentSources = await loadData();
+    if (!currentSources.length) return;
+    renderServerButtons(currentSources);
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+function renderServerButtons(sources) {
+  $serverButtons.innerHTML = '';
+  
+  var urlParams = new URLSearchParams(window.location.search);
+  var serverParam = urlParams.get('server');
+
+  if (serverParam !== null) {
+    
+   // var targetIdx = parseInt(serverParam, 10);  //INDEX 0 START
+    
+      var targetIdx = parseInt(serverParam, 10) - 1; // এখানে ১ বিয়োগ করা হলো NOW INDEX 1 START
+    
+    
+    if (!isNaN(targetIdx) && sources[targetIdx]) {
+      // যদি ?server= ব্যবহার করা হয়, তবে সার্ভার বাটন এবং ওপরের রিফ্রেশ বাটন দুটিই হাইড হয়ে যাবে
+      $serverButtons.style.display = 'none';
+      refreshBtn.style.display = 'none';
+      loadStream(targetIdx);
+      return;
+    }
+  }
+
+  $serverButtons.style.display = 'flex';
+  refreshBtn.style.display = 'flex';
+  sources.forEach(function(src, index) {
+    var btn = document.createElement('button');
+    btn.className = 'server-btn ch-btn' + (index === 0 ? ' active-server' : '');
+    btn.textContent = src.title || ('Server ' + (index + 1));
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      loadStream(index, btn);
+    });
+    $serverButtons.appendChild(btn);
+  });
+
+  if(sources.length > 0) {
+    loadStream(0, $serverButtons.children[0]);
+  }
+}
+
+function loadStream(channel, btn = null) {
+    currentChannel = channel;
+    activeServerIdx = channel;
+    streamFailed = false;
+    if (btn) {
+        setActive(btn);
+    }
+    
+    var stream = currentSources[channel];
+    if (!stream) return;
+
+    showLoader("Video Loading...", true, false);
+
+    if(hlsInstance){
+      try{ hlsInstance.destroy(); }catch(e){}
+      hlsInstance = null;
+    }
+
+    if (Hls.isSupported()) {
+      hlsInstance = new Hls({ enableWorker: true, lowLatencyMode: true });
+      hlsInstance.loadSource(stream.url);
+      hlsInstance.attachMedia(video);
+      hlsInstance.on(Hls.Events.MANIFEST_PARSED, function(){
+        video.play().catch(function(){});
+      });
+      hlsInstance.on(Hls.Events.ERROR, function(event, data) {
+        if (data.fatal) {
+          streamFailed = true;
+          // নেটওয়ার্ক ফেইল হলে স্পিনার হাইড হয়ে "Load Again" মেসেজ দেখাবে
+          showLoader("", false, true);
+          switch(data.type) {
+            case Hls.ErrorTypes.NETWORK_ERROR:
+              hlsInstance.startLoad();
+              break;
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              hlsInstance.recoverMediaError();
+              break;
+            default:
+              hlsInstance.destroy();
+              break;
+          }
+        }
+      });
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = stream.url;
+      video.addEventListener('loadedmetadata', function(){
+        video.play().catch(function(){});
+      });
+    }
+}
+
+// ফাংশনটিকে গ্লোবাল উইন্ডো স্কোপে যুক্ত করা হলো যাতে ইনলাইন onclick কাজ করে
+window.reloadCurrentStream = function() {
+  if (!currentSources.length) return;
+  var activeBtn = $serverButtons.children[activeServerIdx] || null;
+  loadStream(activeServerIdx, activeBtn);
+};
+
+window.addEventListener("load", () => {
+    const channel = window.initialChannel || 0;
+    const button = window.initialButton || document.querySelector("#server-buttons .ch-btn");
+    if(currentSources.length > 0 && !window.location.search.includes('server=')) {
+        loadStream(channel, button);
+    }
+});
+
+video.addEventListener("loadstart", () => {
+    if (!streamFailed) showLoader("Video Loading...", true, false);
+});
+
+video.addEventListener("waiting", () => {
+    if (!streamFailed) showLoader("Loading...", true, false);
+});
+
+video.addEventListener("playing", () => {
+    hideLoading();
+});
+
+video.addEventListener("canplay", () => {
+    hideLoading();
+});
+
+// কীবোর্ড কন্ট্রোল
+document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowUp") {
+        video.volume = Math.min(video.volume + 0.1, 1);
+        volumeSlider.value = video.volume;
+        updateVolumeIcon(video);
+    }
+    if (e.key === "ArrowDown") {
+        video.volume = Math.max(video.volume - 0.1, 0);
+        volumeSlider.value = video.volume;
+        updateVolumeIcon(video);
+    }
+    if (e.key === "m" || e.key === "M") {
+        video.muted = !video.muted;
+        updateVolumeIcon(video);
+    }
+    if (e.code === "Space") {
+        e.preventDefault();
+        video.paused ? video.play() : video.pause();
+    }
+});
+
+const playBtn = document.getElementById("playBtn");
+const pauseBtn = document.getElementById("pauseBtn");
+const centerPlayBtn = document.getElementById("centerPlayBtn");
+
+playBtn.addEventListener("click", () => {
+    video.play();
+});
+
+pauseBtn.addEventListener("click", () => {
+    video.pause();
+});
+
+centerPlayBtn.addEventListener("click", () => { 
+    video.play();
+    playBtn.style.display = "none";
+    centerPlayBtn.style.display = "none";
+});  
+  
+video.addEventListener("pause", () => {
+    playBtn.style.display = "flex";
+    centerPlayBtn.style.display = "flex";
+    pauseBtn.style.display = "none";
+    if (!streamFailed) hideLoading();
+});
+
+video.addEventListener("play", () => {
+    playBtn.style.display = "none";
+    centerPlayBtn.style.display = "none";
+    pauseBtn.style.display = "flex";
+});
+
+video.addEventListener("click", () => {
+    if (video.paused) {
+        video.play();
+    } else {
+        video.pause();
+    }
+});
+  
+/* ===== Overlay Opacity Logic ===== */
+const playerBox = document.getElementById("player-wrapper");
+let overlayTimer;
+playerBox.classList.add("mouse-active");
+  
+function handleInteraction() {
+    playerBox.classList.add("mouse-active");
+    clearTimeout(overlayTimer);
+    overlayTimer = setTimeout(() => {
+        playerBox.classList.remove("mouse-active");
+    }, 5000);
+}
+
+playerBox.addEventListener("mousemove", handleInteraction);
+playerBox.addEventListener("touchstart", handleInteraction);
+
+// Volume Icon Update
+function updateVolumeIcon(v) {
+    if (!volumeIcon) return;
+    if (!v.muted && v.volume >= 0.01) {
+        volumeIcon.innerHTML = `
+        <svg style="width:24px;height:24px;" viewBox="0 0 24 24">
+        <path fill="#38bdf8" stroke="#fff"
+        d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+        </svg>`;
+    } else {
+        volumeIcon.innerHTML = `
+        <svg style="width:24px;height:24px;" viewBox="0 0 24 24">
+        <path fill="#38bdf8" stroke="#fff"
+        d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+        <path d="M4 4L20 20" stroke="#ff0000"
+        stroke-width="2" stroke-linecap="round"/>
+        </svg>`;
+    }
+}
+
+// Volume Slider Event
+volumeSlider.addEventListener("input", () => {
+    video.volume = parseFloat(volumeSlider.value);
+    if (video.volume >= 0.01) {
+        video.muted = false;
+        lastVolume = video.volume;
+    } else {
+        video.muted = true;
+    }
+    updateVolumeIcon(video);
+});
+
+// Mute / Unmute on Icon Click
+volumeIcon.addEventListener("click", () => {
+    if (!video.muted && video.volume >= 0.01) {
+        lastVolume = video.volume;
+        video.muted = true;
+        video.volume = 0;
+        volumeSlider.value = 0;
+    } else {
+        video.muted = false;
+        video.volume = lastVolume >= 0.01 ? lastVolume : 1;
+        volumeSlider.value = video.volume;
+    }
+    updateVolumeIcon(video);
+});
+
+refreshBtn.addEventListener('click', async function(e) {
+  e.stopPropagation();
+  refreshBtn.classList.add('spin');
+  try {
+    if (!currentSources.length) return;
+    loadStream(activeServerIdx, $serverButtons.children[activeServerIdx]);
+  } finally {
+    setTimeout(function() {
+      refreshBtn.classList.remove('spin');
+    }, 700);
+  }
+});
+
+document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+</body>
+</html>
