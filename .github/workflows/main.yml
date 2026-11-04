@@ -1,35 +1,30 @@
-name: Update OK.RU Videos
+name: Auto Channel Scanner
 
 on:
   schedule:
-    - cron: '0 0 * * *' # প্রতিদিন রাত ১২টায় অটোমেটিক চলবে
-  workflow_dispatch: # চাইলে আপনি নিজেও বাটন চেপে রান করতে পারবেন
+    - cron: '*/30 * * * *' # প্রতি ৩০ মিনিট পর পর অটোমেটিক রান করবে
+  workflow_dispatch: # গিটহাব ড্যাশবোর্ড থেকে ম্যানুয়ালি রান করার বাটন পাওয়ার জন্য
 
 jobs:
-  build:
+  scan:
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: write
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          python-version: '3.9'
+          node-version: '18'
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install yt-dlp
-
-      - name: Run OK Search script
-        run: python ok_search.py  # আপনার পাইথন ফাইলের নাম ঠিক থাকলে এটি কাজ করবে
+      - name: Run Scanner Script
+        run: node scanner.js
 
       - name: Commit and push changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add ok_videos.json
-          git commit -m "Auto-update OK.RU videos" || exit 0
-          git push
+          git add channels.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update live channels [skip ci]" && git push)
