@@ -1,30 +1,50 @@
 [
     {
+        "name": "server 2",
+        "url": "https://live2.jorvakstreamcache.com/live/channel2.m3u8"
+    },
+    {
+        "name": "server 4",
+        "url": "https://live2.jorvakstreamcache.com/live/channel4.m3u8"
+    },
+    {
+        "name": "server 5",
+        "url": "https://live2.jorvakstreamcache.com/live/channel5.m3u8"
+    },
+    {
         "name": "server 6",
         "url": "https://live2.jorvakstreamcache.com/live/channel6.m3u8"
     },
     {
-        "name": "server 11",
-        "url": "https://live2.jorvakstreamcache.com/live/channel11.m3u8"
+        "name": "server 10",
+        "url": "https://live2.jorvakstreamcache.com/live/channel10.m3u8"
     },
     {
-        "name": "server 16",
-        "url": "https://live2.jorvakstreamcache.com/live/channel16.m3u8"
+        "name": "server 12",
+        "url": "https://live2.jorvakstreamcache.com/live/channel12.m3u8"
     },
     {
-        "name": "server 17",
-        "url": "https://live2.jorvakstreamcache.com/live/channel17.m3u8"
+        "name": "server 13",
+        "url": "https://live2.jorvakstreamcache.com/live/channel13.m3u8"
     },
     {
-        "name": "server 18",
-        "url": "https://live2.jorvakstreamcache.com/live/channel18.m3u8"
+        "name": "server 14",
+        "url": "https://live2.jorvakstreamcache.com/live/channel14.m3u8"
     },
     {
-        "name": "server 19",
-        "url": "https://live2.jorvakstreamcache.com/live/channel19.m3u8"
+        "name": "server 15",
+        "url": "https://live2.jorvakstreamcache.com/live/channel15.m3u8"
     },
     {
-        "name": "server 24",
-        "url": "https://live2.jorvakstreamcache.com/live/channel24.m3u8"
+        "name": "server 20",
+        "url": "https://live2.jorvakstreamcache.com/live/channel20.m3u8"
+    },
+    {
+        "name": "server 21",
+        "url": "https://live2.jorvakstreamcache.com/live/channel21.m3u8"
+    },
+    {
+        "name": "server 27",
+        "url": "https://live2.jorvakstreamcache.com/live/channel27.m3u8"
     }
 ]
